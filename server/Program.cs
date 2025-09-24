@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization; 
 using Microsoft.EntityFrameworkCore;
 using server.Data;
 
@@ -6,7 +7,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options => 
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; 
+    options.JsonSerializerOptions.WriteIndented = true; 
+});
 builder.Services.AddEndpointsApiExplorer();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
