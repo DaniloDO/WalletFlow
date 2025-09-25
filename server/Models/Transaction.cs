@@ -5,6 +5,7 @@ namespace server.Models;
 public class Transaction
 {
     public int Id { get; set; }
+    public Guid PublicId { get; set; } = Guid.NewGuid(); 
     public decimal Amount { get; set; }
     public DateTime Date { get; set; } = DateTime.UtcNow;
     public string? Description { get; set; } 
