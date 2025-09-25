@@ -22,7 +22,7 @@ public class TransactionsController : ControllerBase
     public async Task<ActionResult<IEnumerable<TransactionDTO>>> GetTransactions()
     {
         var transactions = await _context.Transactions.Include(t => t.Category)
-                                                .Select(t => new TransactionDTO(t.Id, t.Amount, t.Date, t.Description, t.CategoryId))
+                                                .Select(t => new TransactionDTO(t.Id, t.PublicId, t.Amount, t.Date, t.Description, t.CategoryId))
                                                 .ToListAsync();
 
         return Ok(transactions);
@@ -30,11 +30,11 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TransactionDTO>> GetTransaction(int id)
+    public async Task<ActionResult<TransactionDTO>> GetTransaction(Guid publicId)
     {
         var transaction = await _context.Transactions.Include(t => t.Category)
-                                                     .Where(t => t.Id == id)
-                                                     .Select(t => new TransactionDTO(t.Id, t.Amount, t.Date, t.Description, t.CategoryId))
+                                                     .Where(t => t.PublicId == publicId)
+                                                     .Select(t => new TransactionDTO(t.Id, t.PublicId, t.Amount, t.Date, t.Description, t.CategoryId))
                                                      .FirstOrDefaultAsync();
 
         if (transaction is null)
@@ -50,14 +50,14 @@ public class TransactionsController : ControllerBase
         _context.Transactions.Add(transaction);
         await _context.SaveChangesAsync(); 
 
-        var resultDto = new TransactionDTO(transaction.Id, transaction.Amount, transaction.Date, transaction.Description, transaction.CategoryId);
+        var resultDto = new TransactionDTO(transaction.Id, transaction.PublicId, transaction.Amount, transaction.Date, transaction.Description, transaction.CategoryId);
         return CreatedAtAction(nameof(GetTransaction),new { id = transaction.Id } , resultDto); 
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteTransaction(int id)
+    public async Task<ActionResult> DeleteTransaction(Guid publicId)
     {
-        var transaction = await _context.Transactions.FindAsync(id);
+        var transaction = await _context.Transactions.FindAsync(publicId);
         if (transaction is null)
             return NotFound();
 
