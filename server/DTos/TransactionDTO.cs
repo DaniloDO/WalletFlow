@@ -1,3 +1,5 @@
+using server.Models;
+
 namespace server.DTos;
 
 public record TransactionDTO(
@@ -6,5 +8,6 @@ public record TransactionDTO(
     decimal Amount,
     DateTime Date,
     string Description,
-    int CategoryId
+    int CategoryId,
+    int UserId
 );
