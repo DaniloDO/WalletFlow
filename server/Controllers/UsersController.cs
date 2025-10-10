@@ -1,10 +1,6 @@
-using System;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using server.Data;
-using server.DTos;
-using server.Models;
+using server.DTOs;
+using server.Services.UserServices.Interfaces;
 
 namespace server.Controllers;
 
@@ -12,103 +8,57 @@ namespace server.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly AppDbContext _context;
-    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IUserService _service; 
 
-    public UsersController(AppDbContext context, IPasswordHasher<User> passwordHasher)
+    public UsersController(IUserService service)
     {
-        _context = context;
-        _passwordHasher = passwordHasher;
-
+        _service = service; 
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserReadDTO>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<SimpleUserReadDTO>>> GetUsers()
     {
-        var users = await _context.Users.Select(u => new SimpleUserReadDTO(u.Id, u.PublicId, u.UserName, u.Email, u.CreatedAt))
-                                        .ToListAsync();
-
-        return Ok(users);
+        var users = await _service.GetUsers(); 
+        return Ok(users); 
     }
 
-    [HttpGet("{publicId}")]
+    [HttpGet("{publicId:guid}")]
     public async Task<ActionResult<UserReadDTO>> GetUser(Guid publicId)
     {
-        var user = await _context.Users.Include(u => u.Transactions)
-                                       .Where(u => u.PublicId == publicId)
-                                       .FirstOrDefaultAsync();
-
-        if (user is null)
+        var user = await _service.GetUser(publicId);
+        if(user is null)
             return NotFound();
 
+        return Ok(user); 
 
-        var transactionsDto = user.Transactions
-            .Select(t => new TransactionDTO(
-                t.Id,
-                t.PublicId,
-                t.Amount,
-                t.Date,
-                t.Description,
-                t.CategoryId,
-                t.UserId)); 
-
-        var userDto = new UserReadDTO(
-            user.Id,
-            user.PublicId,
-            user.UserName,
-            user.Email,
-            user.CreatedAt,
-            transactionsDto
-        );     
-
-
-        return Ok(userDto);
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserReadDTO>> CreateUser(UserWriteDto writeDto)
+    public async Task<ActionResult<SimpleUserReadDTO>> CreateUser(UserWriteDTO dto)
     {
-        var user = new User
-        {
-            UserName = writeDto.UserName,
-            Email = writeDto.Email,
-            PasswordHash = _passwordHasher.HashPassword(new User(), writeDto.Password)
-        };
+        var createdUser = await _service.CreateUser(dto);
 
-        _context.Add(user);
-        await _context.SaveChangesAsync();
-
-        var readDto = new SimpleUserReadDTO(user.Id, user.PublicId, user.UserName, user.Email, user.CreatedAt);
-        return CreatedAtAction(nameof(GetUser), new { publicId = user.PublicId }, readDto);
+        return CreatedAtAction(nameof(GetUser), new { publicId = createdUser.PublicId }, createdUser);  
     }
 
-    [HttpPut("{publicId}")]
-    public async Task<ActionResult<UserReadDTO>> UpdateUser(Guid publicId, UserWriteDto userWriteDto)
+    [HttpPut("{publicId:guid}")]
+    public async Task<ActionResult> UpdateUser(Guid publicId, UserWriteDTO dto)
     {
-        var user = await _context.Users.FindAsync(publicId);
-        if (user is null)
-            return NotFound();
+        var success = await _service.UpdateUser(publicId, dto);
+        if(!success)
+            return NotFound();  
 
-        user.UserName = userWriteDto.UserName;
-        user.Email = userWriteDto.Email;
-        user.PasswordHash = _passwordHasher.HashPassword(user, userWriteDto.Password);
-
-        await _context.SaveChangesAsync();
-        return NoContent();
+        return NoContent(); 
     }
 
-    [HttpDelete("{publicId}")]
+    [HttpDelete("{publicId:guid}")]
     public async Task<ActionResult> DeleteUser(Guid publicId)
     {
-        var user = await _context.Users.Include(u => u.Transactions)
-                                       .FirstOrDefaultAsync(u => u.PublicId == publicId); 
-        if (user is null)
+        var success = await _service.DeleteUser(publicId); 
+        if(!success)
             return NotFound();
 
-        _context.Transactions.RemoveRange(user.Transactions); 
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
-        
-        return NoContent();
+        return NoContent(); 
     }
+
 }
