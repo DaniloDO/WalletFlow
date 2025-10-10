@@ -1,6 +1,4 @@
-using server.Models;
-
-namespace server.DTos;
+namespace server.DTOs;
 
 public record TransactionDTO(
     int Id,

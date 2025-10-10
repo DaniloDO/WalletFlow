@@ -2,7 +2,11 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
-using server.Models; 
+using server.Models;
+using server.Repositories.UserRepositories;
+using server.Repositories.UserRepositories.Interfaces;
+using server.Services.UserServices;
+using server.Services.UserServices.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");  
@@ -15,6 +19,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.WriteIndented = true; 
 });
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>(); 
+builder.Services.AddScoped<IUserRepository, UserRepository>(); 
+builder.Services.AddScoped<IUserService, UserService>(); 
 builder.Services.AddEndpointsApiExplorer();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
