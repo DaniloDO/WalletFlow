@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.Models;
+using server.Repositories.TransactionRepositories;
+using server.Repositories.TransactionRepositories.Interfaces;
 using server.Repositories.UserRepositories;
 using server.Repositories.UserRepositories.Interfaces;
+using server.Services.TransactionServices;
+using server.Services.TransactionServices.Interface;
 using server.Services.UserServices;
 using server.Services.UserServices.Interfaces;
 
@@ -20,7 +24,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>(); 
 builder.Services.AddScoped<IUserRepository, UserRepository>(); 
-builder.Services.AddScoped<IUserService, UserService>(); 
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();  
 builder.Services.AddEndpointsApiExplorer();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

@@ -14,7 +14,7 @@ public record UserReadDTO(
     string UserName,
     string Email,
     DateTime CreatedAt,
-    IEnumerable<TransactionDTO> Transactions 
+    IEnumerable<SimpleTransactionDTO> Transactions 
 ); 
 
 public record UserWriteDTO(

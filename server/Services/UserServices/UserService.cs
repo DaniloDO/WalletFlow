@@ -36,7 +36,7 @@ public class UserService : IUserService
         if (user is null)
             return null; 
 
-        var transactionsDto = user.Transactions.Select(t => new TransactionDTO(
+        var transactionsDto = user.Transactions.Select(t => new SimpleTransactionDTO(
             t.Id,
             t.PublicId,
             t.Amount,
@@ -75,7 +75,7 @@ public class UserService : IUserService
             user.UserName,
             user.Email,
             user.CreatedAt,
-            Enumerable.Empty<TransactionDTO>()
+            Enumerable.Empty<SimpleTransactionDTO>()
         ); 
     }
 
