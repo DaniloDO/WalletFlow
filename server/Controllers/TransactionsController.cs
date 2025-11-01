@@ -19,14 +19,14 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SimpleTransactionDTO>>> GetTransactions()
+    public async Task<ActionResult<IEnumerable<TransactionReadDTO>>> GetTransactions()
     {
         var transactions = await _service.GetTransactions();
         return Ok(transactions);
     }
 
     [HttpGet("{publicId:guid}")]
-    public async Task<ActionResult<SimpleTransactionDTO>> GetTransaction(Guid publicId)
+    public async Task<ActionResult<TransactionReadDTO>> GetTransaction(Guid publicId)
     {
         var transaction = await _service.GetTransaction(publicId);
         if (transaction is null)
@@ -36,7 +36,7 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<SimpleTransactionDTO>> CreateTransaction(SimpleTransactionDTO dto)
+    public async Task<ActionResult<TransactionReadDTO>> CreateTransaction(TransactionWriteDTO dto)
     {
         var createdTransaction = await _service.CreateTransaction(dto);
 
@@ -44,7 +44,7 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpPut("{publicId:guid}")]
-    public async Task<ActionResult> UpdateTransaction(Guid publicId, SimpleTransactionDTO dto)
+    public async Task<ActionResult> UpdateTransaction(Guid publicId, TransactionReadDTO dto)
     {
         var updated = await _service.UpdateTransaction(publicId, dto);
         if (!updated)

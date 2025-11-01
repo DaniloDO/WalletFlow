@@ -16,7 +16,10 @@ public class TransactionRepository : ITransactionRepository
 
     public async Task<IEnumerable<Transaction>> GetTransactions()
     {
-        return await _context.Transactions.ToListAsync();
+        return await _context.Transactions
+            .Include(t => t.User)
+            .Include(t => t.Category)
+            .ToListAsync();
     }
 
     public async Task<Transaction?> GetTransaction(Guid publicId)
