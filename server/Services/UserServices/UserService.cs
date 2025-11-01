@@ -22,7 +22,6 @@ public class UserService : IUserService
         var users = await _repository.GetUsers(); 
 
         return users.Select(u => new SimpleUserReadDTO(
-            u.Id,
             u.PublicId,
             u.UserName,
             u.Email,
@@ -30,24 +29,24 @@ public class UserService : IUserService
         )); 
     }
 
-    public async Task<UserReadDTO> GetUser(Guid publicId)
+    public async Task<UserReadDTO?> GetUser(Guid publicId)
     {
         var user = await _repository.GetUser(publicId); 
         if (user is null)
             return null; 
 
-        var transactionsDto = user.Transactions.Select(t => new SimpleTransactionDTO(
-            t.Id,
+        var transactionsDto = user.Transactions.Select(t => new TransactionReadDTO(
             t.PublicId,
             t.Amount,
             t.Date,
             t.Description,
             t.CategoryId,
-            t.UserId
+            t.Category.Name,
+            t.UserId,
+            t.User.UserName
         ));
 
         return new UserReadDTO(
-            user.Id,
             user.PublicId,
             user.UserName,
             user.Email,
@@ -70,12 +69,11 @@ public class UserService : IUserService
         await _repository.SaveChangesAsync(); 
 
         return new UserReadDTO(
-            user.Id,
             user.PublicId,
             user.UserName,
             user.Email,
             user.CreatedAt,
-            Enumerable.Empty<SimpleTransactionDTO>()
+            Enumerable.Empty<TransactionReadDTO>()
         ); 
     }
 

@@ -1,7 +1,6 @@
 namespace server.DTOs;
 
 public record SimpleUserReadDTO(
-    int Id,
     Guid PublicId,
     string UserName,
     string Email,
@@ -9,12 +8,11 @@ public record SimpleUserReadDTO(
 ); 
 
 public record UserReadDTO(
-    int Id,
     Guid PublicId,
     string UserName,
     string Email,
     DateTime CreatedAt,
-    IEnumerable<SimpleTransactionDTO> Transactions 
+    IEnumerable<TransactionReadDTO> Transactions 
 ); 
 
 public record UserWriteDTO(
